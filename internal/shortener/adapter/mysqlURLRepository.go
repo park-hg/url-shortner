@@ -1,0 +1,56 @@
+package adapter
+
+import (
+	"context"
+	"time"
+
+	"gorm.io/gorm"
+
+	"traffic-reporter/internal/pkg"
+)
+
+type URLMappingTable struct {
+	ID          uint64
+	OriginalURL string
+	CreatedAt   time.Time
+}
+
+type MySQLURLRepository struct {
+	db          *gorm.DB
+	idGenerator pkg.IDGenerator
+}
+
+func NewMySQLURLRepository(db *gorm.DB, idGenerator pkg.IDGenerator) *MySQLURLRepository {
+	return &MySQLURLRepository{db: db, idGenerator: idGenerator}
+}
+
+func (m *MySQLURLRepository) Shorten(ctx context.Context, original string) (string, error) {
+	id, err := m.idGenerator.GenerateTSID()
+	if err != nil {
+		return "", err
+	}
+	strID, err := m.idGenerator.ToString(id)
+	if err != nil {
+		return "", err
+	}
+
+	target := URLMappingTable{
+		ID:          id,
+		OriginalURL: original,
+		CreatedAt:   time.Now(),
+	}
+
+	err = m.db.WithContext(ctx).Create(&target).Error
+	return strID, err
+}
+
+func (m *MySQLURLRepository) RetrieveOriginal(ctx context.Context, shortened string) (string, error) {
+	id, err := m.idGenerator.ToID(shortened)
+	if err != nil {
+		return "", err
+	}
+
+	var dest URLMappingTable
+	err = m.db.WithContext(ctx).Where("id = ?", id).First(&dest).Error
+	return dest.OriginalURL, err
+}
