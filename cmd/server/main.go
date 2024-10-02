@@ -12,7 +12,7 @@ func main() {
 
 	app := internal.InitApp(c)
 	srv := fiber.New(c.FiberConfig)
-	internal.RegisteRouters(srv, app)
+	internal.RegisterRouters(srv, app)
 	if err := srv.Listen(":8080"); err != nil {
 		panic(err)
 	}

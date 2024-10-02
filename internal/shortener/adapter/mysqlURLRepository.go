@@ -10,7 +10,7 @@ import (
 )
 
 type URLMappingTable struct {
-	ID          uint64
+	ID          int64
 	OriginalURL string
 	CreatedAt   time.Time
 }

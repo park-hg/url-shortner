@@ -8,6 +8,7 @@ type Config struct {
 	ServerConfig ServerConfig
 	FiberConfig  fiber.Config
 	MySQLConfig  MySQLConfig
+	RedisConfig  RedisConfig
 }
 
 type ServerConfig struct {
@@ -17,6 +18,11 @@ type ServerConfig struct {
 type MySQLConfig struct {
 	DataSourceName string
 	LoggingLevel   string
+}
+
+type RedisConfig struct {
+	Endpoint   string
+	ClientName string
 }
 
 func NewConfig() Config {

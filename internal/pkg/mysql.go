@@ -1,8 +1,10 @@
 package pkg
 
 import (
+	"context"
 	"database/sql"
 
+	"github.com/redis/go-redis/v9"
 	mysqlgorm "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -43,4 +45,13 @@ func setLoggerFromOption(level string) logger.Interface {
 		return logger.Discard
 	}
 	return logger.Default.LogMode(loggerLevel)
+}
+
+func MustConnectRedis(c config.RedisConfig) redis.UniversalClient {
+	redisClient := redis.NewClient(&redis.Options{Addr: c.Endpoint, ClientName: c.ClientName})
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		panic(err)
+	}
+
+	return redisClient
 }
