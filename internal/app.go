@@ -15,7 +15,8 @@ type App struct {
 
 func InitApp(c config.Config) *App {
 	db := pkg.MustConnectMySQL(c.MySQLConfig)
-	idGenerator := pkg.NewTSIDGenerator()
+	rdb := pkg.MustConnectRedis(c.RedisConfig)
+	idGenerator := pkg.NewTSIDGenerator(rdb, pkg.NewBase62Encoder())
 	repo := adapter.NewMySQLURLRepository(db, idGenerator)
 	shortenURLUseCase := usecase.NewShortenURLUseCase(repo)
 	return &App{

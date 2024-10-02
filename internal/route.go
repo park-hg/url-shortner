@@ -6,8 +6,8 @@ import (
 	"traffic-reporter/internal/shortener/controller"
 )
 
-func RegisteRouters(router *fiber.App, app *App) {
-	shortenURlController := controller.NewShortenURLController(app.ShortenURLUseCase)
-
+func RegisterRouters(router *fiber.App, app *App) {
+	shortenURlController := controller.NewShortenURLController(app.config.ServerConfig, app.ShortenURLUseCase)
 	router.Post("/shorten", shortenURlController.Shorten)
+	router.Get("/:shortened", shortenURlController.RedirectToOriginal)
 }
