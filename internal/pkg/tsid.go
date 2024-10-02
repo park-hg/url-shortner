@@ -25,11 +25,6 @@ var (
 	ErrGenerateTSID = errors.New("fail to generate tsid")
 )
 
-// tsid: 64bit
-// serverID: 10bit
-// timestamp: 40bit (34.8 yrs)
-// serialNumber: 14bit (can handler almost 10,000 req/s)
-
 type TSIDGenerator struct {
 	rdb    redis.UniversalClient
 	ticker *time.Ticker
