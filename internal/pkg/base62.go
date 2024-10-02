@@ -35,6 +35,7 @@ func (e *Base62Encoder) Encode(n int64) string {
 	for n > 0 {
 		r := n % base
 		encoded += string([]rune(base62Charset)[r])
+		n /= base
 	}
 
 	return reverse(encoded)
