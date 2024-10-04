@@ -3,7 +3,9 @@ module traffic-reporter
 go 1.21.4
 
 require (
+	github.com/caarlos0/env/v11 v11.2.2
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/stretchr/testify v1.9.0
 	gorm.io/driver/mysql v1.5.7

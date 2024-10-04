@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	c := config.NewConfig()
+	c := config.MustNewConfig()
 
 	app := internal.InitApp(c)
 	srv := fiber.New(c.FiberConfig)

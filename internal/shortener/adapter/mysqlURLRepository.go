@@ -10,9 +10,9 @@ import (
 )
 
 type URLMappingTable struct {
-	ID          int64
-	OriginalURL string
-	CreatedAt   time.Time
+	ID          int64     `gorm:"type:bigint unsigned;not null;primaryKey;autoIncrement:false"`
+	OriginalURL string    `gorm:"type:text;not null"`
+	CreatedAt   time.Time `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP"`
 }
 
 type MySQLURLRepository struct {
