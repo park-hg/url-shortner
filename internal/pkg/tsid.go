@@ -14,6 +14,7 @@ type IDGenerator interface {
 	GenerateTSID() (int64, error)
 	ToString(int64) (string, error)
 	ToID(string) (int64, error)
+	Close() error
 }
 
 const (
@@ -92,7 +93,6 @@ func (g *TSIDGenerator) ToID(strID string) (int64, error) {
 }
 
 func (g *TSIDGenerator) Close() error {
-	ctx := context.Background()
 	g.ticker.Stop()
-	return g.rdb.Del(ctx, fmt.Sprintf("server_id:%d", g.serverID)).Err()
+	return g.rdb.Del(context.Background(), fmt.Sprintf("server_id:%d", g.serverID)).Err()
 }
