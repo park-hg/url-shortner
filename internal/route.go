@@ -8,6 +8,7 @@ import (
 
 func RegisterRouters(router *fiber.App, app *App) {
 	shortenURlController := controller.NewShortenURLController(app.config.ServerConfig, app.ShortenURLUseCase)
-	router.Post("/shorten", shortenURlController.Shorten)
+	router.Post("/admin/urls/shorten", shortenURlController.GenerateShortURL)
+	router.Get("/admin/urls/shortened", shortenURlController.GetShortened)
 	router.Get("/:shortened", shortenURlController.RedirectToOriginal)
 }

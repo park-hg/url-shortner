@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +29,7 @@ type ShortenURLResponse struct {
 	ShortURL string `json:"short_url"`
 }
 
-func (c *ShortenURLController) Shorten(fc *fiber.Ctx) error {
+func (c *ShortenURLController) GenerateShortURL(fc *fiber.Ctx) error {
 	ctx := fc.UserContext()
 	req := ShortenURLRequest{}
 	if err := fc.BodyParser(&req); err != nil {
@@ -53,6 +54,31 @@ func (c *ShortenURLController) Shorten(fc *fiber.Ctx) error {
 	}
 
 	return fc.Status(http.StatusCreated).JSON(ShortenURLResponse{ShortURL: c.host + "/" + shortened})
+}
+
+type GetShortenResponse struct {
+	ShortURL string `json:"short_url"`
+}
+
+func (c *ShortenURLController) GetShortened(fc *fiber.Ctx) error {
+	ctx := fc.UserContext()
+	originalURL := fc.Query("originalUrl")
+	if originalURL == "" {
+		return fc.Status(http.StatusBadRequest).JSON(pkg.FiberError{
+			Error:       fmt.Errorf("originalUrl is empty"),
+			Description: "invalid request query",
+		})
+	}
+
+	shortened, err := c.uc.GetShortened(ctx, originalURL)
+	if err != nil {
+		return fc.Status(http.StatusInternalServerError).JSON(pkg.FiberError{
+			Error:       err,
+			Description: "internal server error",
+		})
+	}
+
+	return fc.Status(http.StatusOK).JSON(GetShortenResponse{ShortURL: c.host + "/" + shortened})
 }
 
 func (c *ShortenURLController) RedirectToOriginal(fc *fiber.Ctx) error {
