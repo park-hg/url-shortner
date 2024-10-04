@@ -30,12 +30,10 @@ func main() {
 		done <- struct{}{}
 	}()
 
-	// ...
-
 	if err := srv.Listen(":8080"); err != nil {
 		panic(err)
 	}
 
 	<-done
-	app.Teardown()
+	_ = app.Teardown()
 }
