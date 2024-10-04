@@ -3,6 +3,7 @@ package pkg
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/redis/go-redis/v9"
 	mysqlgorm "gorm.io/driver/mysql"
@@ -13,8 +14,10 @@ import (
 )
 
 func MustConnectMySQL(c config.MySQLConfig) *gorm.DB {
-	sqlDB, err := sql.Open("mysql", c.DataSourceName)
-
+	sqlDB, err := sql.Open("mysql", getDSN(c))
+	if err != nil {
+		panic(err)
+	}
 	gDB, err := gorm.Open(
 		mysqlgorm.New(mysqlgorm.Config{Conn: sqlDB}),
 		&gorm.Config{
@@ -45,6 +48,17 @@ func setLoggerFromOption(level string) logger.Interface {
 		return logger.Discard
 	}
 	return logger.Default.LogMode(loggerLevel)
+}
+
+func getDSN(config config.MySQLConfig) string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?parseTime=True",
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Database,
+	)
 }
 
 func MustConnectRedis(c config.RedisConfig) redis.UniversalClient {
