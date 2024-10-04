@@ -17,8 +17,8 @@ type IDGenerator interface {
 }
 
 const (
-	maxServerID          = 1024
-	baseUnixMilliSeconds = 1727868113 // 2024-10-02 11:21
+	maxServerID     = 1024
+	baseUnixSeconds = 1727868113 // 2024-10-02 11:21
 )
 
 var (
@@ -44,14 +44,14 @@ func NewTSIDGenerator(rdb redis.UniversalClient, enc Encoder) *TSIDGenerator {
 		}
 		if res == true {
 			ticker := time.NewTicker(1 * time.Second)
-			var serialNo int32
+			generator := &TSIDGenerator{rdb: rdb, ticker: ticker, enc: enc, serverID: i, serialNo: 0}
 			go func() {
 				for range ticker.C {
-					atomic.StoreInt32(&serialNo, 0)
+					atomic.StoreInt32(&generator.serialNo, 0)
 				}
 			}()
 
-			return &TSIDGenerator{rdb: rdb, ticker: ticker, enc: enc, serverID: i, serialNo: serialNo}
+			return generator
 		}
 	}
 
@@ -64,12 +64,12 @@ func NewTSIDGenerator(rdb redis.UniversalClient, enc Encoder) *TSIDGenerator {
 //		---------------------------------------------
 //		|  timestamp  |  server_id  | serial_number |
 //		---------------------------------------------
-//		| <- 40bit -> | <- 10bit -> |  <- 14bit ->  |
+//		| <- 30bit -> | <- 10bit -> |  <- 14bit ->  |
 //		---------------------------------------------
-//		|  ~34.8 yrs  |  1024 srvs  |  ~10,000req/s |
+//		|    ~34yrs   |  1024 srvs  |  ~10,000req/s |
 //	    ---------------------------------------------
 func (g *TSIDGenerator) GenerateTSID() (int64, error) {
-	relativeTimestamp := time.Now().UnixMilli() - baseUnixMilliSeconds
+	relativeTimestamp := time.Now().Unix() - baseUnixSeconds
 
 	for i := 0; i < 100; i++ {
 		oldValue := atomic.LoadInt32(&g.serialNo)
