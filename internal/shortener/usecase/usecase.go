@@ -6,6 +6,7 @@ import (
 
 type urlMapper interface {
 	Shorten(ctx context.Context, original string) (shortened string, err error)
+	GetShortened(ctx context.Context, original string) (shortened string, err error)
 	RetrieveOriginal(ctx context.Context, shortened string) (original string, err error)
 }
 
@@ -19,6 +20,10 @@ func NewShortenURLUseCase(repo urlMapper) *ShortenURLUseCase {
 
 func (uc *ShortenURLUseCase) Shorten(ctx context.Context, original string) (string, error) {
 	return uc.repo.Shorten(ctx, original)
+}
+
+func (uc *ShortenURLUseCase) GetShortened(ctx context.Context, original string) (string, error) {
+	return uc.repo.GetShortened(ctx, original)
 }
 
 func (uc *ShortenURLUseCase) RetrieveOriginal(ctx context.Context, shortened string) (string, error) {

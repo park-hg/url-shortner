@@ -11,7 +11,7 @@ import (
 
 type URLMappingTable struct {
 	ID          int64     `gorm:"type:bigint unsigned;not null;primaryKey;autoIncrement:false"`
-	OriginalURL string    `gorm:"type:text;not null"`
+	OriginalURL string    `gorm:"type:varchar(255);not null;uniqueIndex:UNIQ_originalUrl"`
 	CreatedAt   time.Time `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP"`
 }
 
@@ -42,6 +42,15 @@ func (m *MySQLURLRepository) Shorten(ctx context.Context, original string) (stri
 
 	err = m.db.WithContext(ctx).Create(&target).Error
 	return strID, err
+}
+
+func (m *MySQLURLRepository) GetShortened(ctx context.Context, original string) (string, error) {
+	dest := URLMappingTable{}
+	err := m.db.WithContext(ctx).Where("original_url = ?", original).First(&dest).Error
+	if err != nil {
+		return "", err
+	}
+	return m.idGenerator.ToString(dest.ID)
 }
 
 func (m *MySQLURLRepository) RetrieveOriginal(ctx context.Context, shortened string) (string, error) {
